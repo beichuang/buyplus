@@ -34,7 +34,7 @@ class GoodsController extends CommonController
                 foreach(I('post.attribute',[]) as $attribute_id=>$value){
                     //判断当前属性类型
                     $attribute_type_id = $modelAttribute->where(['attribute_id'=>$attribute_id])->getField('attribute_type_id');
-                    $attributeType = $modelAttribute->where(['attribute_type_id'=>$attribute_type_id])->getField('attribute_type_title');
+                    $attributeType = $modelAttributeType->where(['attribute_type_id'=>$attribute_type_id])->getField('attribute_type_title');
                     switch($attributeType){
                         case 'text': //文本
                             $data = [
@@ -265,5 +265,43 @@ class GoodsController extends CommonController
         $this->assign('page_nav', $page_nav);
         $this->display();
 
+    }
+    /**
+     * 批量处理
+     */
+    public function multiAction()
+    {
+        $option = I('post.option',null);
+        //先假设是批量删除
+        $option = 'delete';
+        switch ($option) {
+            case 'delete':
+                $model = M('Goods');
+                $model->where(['goods_id'=>['in',I('post.selected')]])->delete();
+                break;
+        }
+        $this->redirect('list');
+    }
+    /**
+     * 接口开发
+     */
+    public function ajaxAction()
+    {
+        switch (I('request.operate','')) {
+            case 'getAttrList' :
+                $rows = D('Attribute')
+                    ->alias('a')
+                    ->join('left join __ATTRIBUTE_TYPE__ at using (attribute_type_id)')
+                    ->relation(true)
+                    ->where(['type_id'=>I('request.type_id')])
+                    ->select();
+                if($rows){
+                    $this->ajaxReturn(['error'=>0, 'rows'=>$rows]);
+                }else{
+                    $this->ajaxReturn(['error'=>1]);
+                }
+                break;
+
+        }
     }
 }

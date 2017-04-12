@@ -33,6 +33,7 @@
                         商品列表
                     </h3>
                 </div>
+                <if condition="$list">
                 <div class="panel-body">
                     <form action="{:U('list')}" method="get">
                         <div class="well">
@@ -54,9 +55,9 @@
                             </div>
                         </div>
                     </form>
-
                     <form action="{:U('multi')}" method="post" enctype="multipart/form-data" id="form-list">
                         <div class="table-responsive">
+
                             <table class="table table-bordered table-hover">
                                 <thead>
                                 <tr>
@@ -165,6 +166,9 @@
                         {$page_nav}
                     </div>
                 </div>
+                    <else />
+                    <div class="row" align="center" style="font-size: larger;color: #9B410E">没有数据</div>
+                </if>
             </div>
         </div>
     </div>
