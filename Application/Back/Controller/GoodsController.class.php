@@ -325,9 +325,9 @@ class GoodsController extends CommonController
                     }
                     $toolImage
                         ->open(APP_PATH . 'Upload/' . $image)
-                        ->thumb(300, 340, Image::IMAGE_THUMB_FILLED) //缩略图
+                        ->thumb(300, 340, Image::IMAGE_THUMB_FILLED)//缩略图
                         ->save('./Public/Thumb/' . $image);
-                    $this->ajaxReturn(['error'=>0, 'imageAjax'=>['image'=>$image, 'image_thumb'=>$image, 'thumbUrl'=>$image]]);
+                    $this->ajaxReturn(['error' => 0, 'imageAjax' => ['image' => $image, 'image_thumb' => $image, 'thumbUrl' => $image]]);
                 }
                 break;
             case 'galleriesUpload': //商品相册
@@ -343,8 +343,8 @@ class GoodsController extends CommonController
                     $image = $uploadInfo['savepath'] . $uploadInfo['savename'];
 //                    创建public/Thumb/日期
                     $toolImage = new Image();
-                    if (! is_dir ('./Public/Thumb/' . $uploadInfo['savepath'])) {
-                        mkdir ('./Public/Thumb/' . $uploadInfo['savepath'], 0764, true);
+                    if (!is_dir('./Public/Thumb/' . $uploadInfo['savepath'])) {
+                        mkdir('./Public/Thumb/' . $uploadInfo['savepath'], 0764, true);
                     }
                     // 创建大中小三种缩略图
                     $toolImage->open(APP_PATH . 'Upload/' . $image);
@@ -360,13 +360,13 @@ class GoodsController extends CommonController
                     // 原始文件名, 缩略图文件名
                     // 制作响应数据
                     $this->ajaxReturn([
-                        'error'=>0,
-                        'image'=>$image,
-                        'image_small'=>$smallImage,
-                        'image_medium'=>$mediumImage,
-                        'image_big'=>$bigImage,
-                        'key'=>strchr($uploadInfo['savename'], '.', true),
-                        'savepath'=>$uploadInfo['savepath'],
+                        'error' => 0,
+                        'image' => $image,
+                        'image_small' => $smallImage,
+                        'image_medium' => $mediumImage,
+                        'image_big' => $bigImage,
+                        'key' => strchr($uploadInfo['savename'], '.', true),
+                        'savepath' => $uploadInfo['savepath'],
                         'ext' => strrchr($uploadInfo['savename'], '.'),
                     ]);
                 }
@@ -379,9 +379,9 @@ class GoodsController extends CommonController
                     $savepath = I('request.savepath');
                 } else {
                     // gallery_ID传递
-                    $imageLong = M('Gallery')->where(['gallery_id'=>$gallery_id])->getField('image');
-                    $image = substr($imageLong, strrpos($imageLong, '/')+1);
-                    $savepath = substr($imageLong, 0, strrpos($imageLong, '/')+1);
+                    $imageLong = M('Gallery')->where(['gallery_id' => $gallery_id])->getField('image');
+                    $image = substr($imageLong, strrpos($imageLong, '/') + 1);
+                    $savepath = substr($imageLong, 0, strrpos($imageLong, '/') + 1);
 
                     // 删除记录
                     M('Gallery')->delete($gallery_id);
@@ -389,10 +389,10 @@ class GoodsController extends CommonController
                 //删图像文件
                 @unlink(APP_PATH . 'Upload/' . $savepath . $image);// 上传的原图
                 @unlink('./Public/Thumb/' . $savepath . 'big-' . $image);// 大图
-                @unlink('./Public/Thumb/' . $savepath . 'medium-'. $image);// 中图
+                @unlink('./Public/Thumb/' . $savepath . 'medium-' . $image);// 中图
                 @unlink('./Public/Thumb/' . $savepath . 'small-' . $image);// 小图
 
-                $this->ajaxReturn(['error'=>0]);
+                $this->ajaxReturn(['error' => 0]);
                 break;
             case 'addProduct':
                 $modelProduct = M('Product');
@@ -400,7 +400,7 @@ class GoodsController extends CommonController
 
                 // 生成product_goods_attribute_option
                 $modelPGAO = M('ProductGoodsAttributeOption');
-                $rows = array_map(function($goods_attribute_option_id)  use($product_id) {
+                $rows = array_map(function ($goods_attribute_option_id) use ($product_id) {
                     return [
                         'product_id' => $product_id,
                         'goods_attribute_option_id' => $goods_attribute_option_id,
@@ -412,7 +412,7 @@ class GoodsController extends CommonController
                 $product = array_merge($product, I('request.'));
                 // 通过所选的选项ID获取选项内容
                 $modelGAO = M('GoodsAttributeOption');
-                foreach($product['option'] as $goods_attribute_option_id) {
+                foreach ($product['option'] as $goods_attribute_option_id) {
                     $row = $modelGAO
                         ->join('left join __ATTRIBUTE_OPTION__ using(attribute_option_id)')
                         ->find($goods_attribute_option_id);
@@ -424,9 +424,58 @@ class GoodsController extends CommonController
                 $this->display('product_row');
                 break;
             default:
-                $this->ajaxReturn(['error'=>1, 'errorInfo'=>'操作错误']);
+                $this->ajaxReturn(['error' => 1, 'errorInfo' => '操作错误']);
                 break;
 
         }
     }
+
+    /**
+     * 货品操作
+     */
+    public function productAction()
+    {
+        // 获取当前商品的货品选项属性列表
+        $goods_id = I('get.goods_id');
+        $modelGoodsAttribute = M('GoodsAttribute');
+        $optionList = $modelGoodsAttribute
+            ->alias('ga')
+            ->join('left join __ATTRIBUTE__ a using(attribute_id)')
+            ->where(['goods_id'=>$goods_id, 'product_option'=>'1'])
+            ->select();
+
+        // 遍历当前的商品货品属性, 获取当前货品属性对应已选的属性选项值
+        $modelGoodsAttributeOption = M('GoodsAttributeOption');
+        foreach($optionList as $key=>$option) {
+            $valueList = $modelGoodsAttributeOption
+                ->alias('gao')
+                ->join('left join __ATTRIBUTE_OPTION__ ao using(attribute_option_id)')
+                ->where(['goods_attribute_id'=>$option['goods_attribute_id']])
+                ->select();
+            $optionList[$key]['valueList'] = $valueList;
+        }
+        $this->assign('optionList', $optionList);
+
+        $this->assign('priceDriftList', M('PriceDrift')->select());
+
+        $this->assign('goods_id', I('get.goods_id'));
+        // 已有货品列表即可
+        $productList = M('Product')
+            ->where(['goods_id'=>I('get.goods_id')])
+            ->select();
+        foreach($productList as $key=>$product) {
+            $rows = M('ProductGoodsAttributeOption')
+                ->join('left join __GOODS_ATTRIBUTE_OPTION__ using(goods_attribute_option_id)')
+                ->join('left join __ATTRIBUTE_OPTION__ using(attribute_option_id)')
+                ->where(['product_id'=>$product['product_id']])
+                ->select();
+            $productList[$key]['optionList'] = $rows;
+        }
+        $this->assign('productList', $productList);
+
+
+        $this->display();
+    }
+
 }
+
