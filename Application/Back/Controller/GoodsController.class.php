@@ -146,7 +146,7 @@ class GoodsController extends CommonController
                         ->field('attribute_type_title')
                         ->join('left join __ATTRIBUTE__ a using(attribute_type_id)')
                         ->join('left join __GOODS_ATTRIBUTE__ ga using(attribute_id)')
-                        ->where(['goods_attribute_id' => $goods_attribute_list])
+                        ->where(['goods_attribute_id' => $goods_attribute_id])
                         ->find();
                     $attributeType = $attributeType['attribute_type_title'];
 
@@ -178,7 +178,7 @@ class GoodsController extends CommonController
                                 ];
 
                             }, $value);
-                            $modelGoodsAttributeOption->add($row);
+                            $modelGoodsAttributeOption->add($rows);
 
                             break;
                     }
@@ -393,6 +393,38 @@ class GoodsController extends CommonController
                 @unlink('./Public/Thumb/' . $savepath . 'small-' . $image);// 小图
 
                 $this->ajaxReturn(['error'=>0]);
+                break;
+            case 'addProduct':
+                $modelProduct = M('Product');
+                $product_id = $modelProduct->add(I('request.'));
+
+                // 生成product_goods_attribute_option
+                $modelPGAO = M('ProductGoodsAttributeOption');
+                $rows = array_map(function($goods_attribute_option_id)  use($product_id) {
+                    return [
+                        'product_id' => $product_id,
+                        'goods_attribute_option_id' => $goods_attribute_option_id,
+                    ];
+                }, I('request.option', []));
+                $modelPGAO->addAll($rows);
+
+                $product['product_id'] = $product_id;
+                $product = array_merge($product, I('request.'));
+                // 通过所选的选项ID获取选项内容
+                $modelGAO = M('GoodsAttributeOption');
+                foreach($product['option'] as $goods_attribute_option_id) {
+                    $row = $modelGAO
+                        ->join('left join __ATTRIBUTE_OPTION__ using(attribute_option_id)')
+                        ->find($goods_attribute_option_id);
+                    $product['optionList'][] = $row;
+                }
+                $this->assign('product', $product);
+
+                $this->assign('priceDriftList', M('PriceDrift')->select());
+                $this->display('product_row');
+                break;
+            default:
+                $this->ajaxReturn(['error'=>1, 'errorInfo'=>'操作错误']);
                 break;
 
         }
