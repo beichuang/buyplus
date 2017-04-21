@@ -33,7 +33,6 @@
                         商品列表
                     </h3>
                 </div>
-                <if condition="$list">
                 <div class="panel-body">
                     <form action="{:U('list')}" method="get">
                         <div class="well">
@@ -55,9 +54,9 @@
                             </div>
                         </div>
                     </form>
+
                     <form action="{:U('multi')}" method="post" enctype="multipart/form-data" id="form-list">
                         <div class="table-responsive">
-
                             <table class="table table-bordered table-hover">
                                 <thead>
                                 <tr>
@@ -65,7 +64,7 @@
                                         <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
                                     </td>
 
-                                    <td class="text-left">
+                                                                        <td class="text-left">
                                         <a href="javascript:;" class="">ID</a>
                                     </td>
                                     <td class="text-left">
@@ -110,7 +109,7 @@
                                             <input type="checkbox" name="selected[]" value="{$row['goods_id']}" />
                                         </td>
 
-                                        <td class="text-left">
+                                                                                <td class="text-left">
                                             {$row['goods_id']}
                                         </td>
                                         <td class="text-left">
@@ -144,7 +143,7 @@
                                             {$row['updated_at']}
                                         </td>
 
-
+                                        
                                         <td class="text-right">
                                             <a href="{:U('edit', ['goods_id'=>$row['goods_id']])}" data-toggle="tooltip" title="编辑" class="btn btn-primary">
                                                 <i class="fa fa-pencil"></i>
@@ -162,13 +161,10 @@
                         </div>
                     </form>
 
-                    <div class="row" align="center">
-                        {$page_nav}
+                    <div class="row">
+                        {$pageHtml}
                     </div>
                 </div>
-                    <else />
-                    <div class="row" align="center" style="font-size: larger;color: #9B410E">没有数据</div>
-                </if>
             </div>
         </div>
     </div>
