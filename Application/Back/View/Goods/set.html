@@ -31,7 +31,7 @@
                     </h3>
                 </div>
                 <div class="panel-body">
-                     <!--__ACTION__-->
+                    <!-- __ACTION__ -->
                     <form action="{:U('')}" method="post" enctype="multipart/form-data" id="form-set" class="form-horizontal">
                         <if condition="ACTION_NAME eq 'edit'">
                             <input type="hidden" name="goods_id" id="input-goods_id" value="{$data['goods_id']}">
@@ -490,10 +490,10 @@
     </script>
     <script>
 
-        $(function() {
-            // 自定义初始验证方法
-            $('#form-set').validate({});
-        });
+    $(function() {
+        // 自定义初始验证方法
+        $('#form-set').validate({});
+    });
     </script>
 
     <script src="__PUBLIC__/Back/jqueryFileUpload/js/vendor/jquery.ui.widget.js"></script>
@@ -502,7 +502,7 @@
     <!-- The basic File Upload plugin -->
     <script src="__PUBLIC__/Back/jqueryFileUpload/js/jquery.fileupload.js"></script>
     <script>
-        //        上传商品主图像
+//        上传商品主图像
         $(function() {
             var url = '{:U('ajax', ['operate'=>'imageUpload'])}';
             $('#input-image').fileupload({
@@ -523,7 +523,7 @@
     </script>
 
     <script>
-        //        上传商品相册图像
+//        上传商品相册图像
         $(function(){
             var url = "{:U('ajax', ['operate'=>'galleriesUpload'])}";
             $('#input-galleries').fileupload({
@@ -543,10 +543,10 @@
                     trHtml += '<td class="text-left"><input type="text" name="galleries[' + data.result.key +'][intro]" placeholder="描述" class="form-control"></td>';
                     trHtml += '<td class="text-left"><input type="text" name="galleries[' + data.result.key +'][sort_number]" value="0" placeholder="排序" class="form-control"></td>';
                     trHtml += '<td class="text-left">' +
-                        '<button type="button" id="button-remove-' + data.result.key + '" data-toggle="tooltip" data-key="' + data.result.key +'" data-ext="' + data.result.ext +'" data-savepath="'+data.result.savepath+'" title="移除" class="btn btn-danger">' +
-                        '<i class="fa fa-minus-circle"></i>' +
-                        '</button>' +
-                        '</td>';
+                            '<button type="button" id="button-remove-' + data.result.key + '" data-toggle="tooltip" data-key="' + data.result.key +'" data-ext="' + data.result.ext +'" data-savepath="'+data.result.savepath+'" title="移除" class="btn btn-danger">' +
+                            '<i class="fa fa-minus-circle"></i>' +
+                            '</button>' +
+                            '</td>';
                     trHtml += '</tr>';
 
                     // 追加到table的tbody中
